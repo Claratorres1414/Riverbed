@@ -1,5 +1,7 @@
-package com.project.riverbed.domain.card;
+package com.project.riverbed.domain.card.entitys;
 
+import com.project.riverbed.domain.card.enums.Rank;
+import com.project.riverbed.domain.card.enums.Suit;
 import jakarta.persistence.*;
 import lombok.*;
 

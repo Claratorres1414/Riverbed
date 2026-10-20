@@ -1,4 +1,4 @@
-package com.project.riverbed.domain.card;
+package com.project.riverbed.domain.card.enums;
 
 public enum Suit {
     HEARTS,

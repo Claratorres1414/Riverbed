@@ -1,0 +1,7 @@
+package com.project.riverbed.domain.card.repositorys;
+
+import com.project.riverbed.domain.card.entitys.Card;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CardRepository extends JpaRepository<Card, Long> {
+}
