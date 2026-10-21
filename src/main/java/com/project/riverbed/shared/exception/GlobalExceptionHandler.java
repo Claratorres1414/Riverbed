@@ -1,3 +1,4 @@
+
 package com.project.riverbed.shared.exception;
 
 import com.project.riverbed.shared.response.ApiResponse;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ValidationErrorResponse handleValidationException(
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex
     ) {
         Map<String, String> errors = ex.getBindingResult()
@@ -29,15 +30,21 @@ public class GlobalExceptionHandler {
                         error -> error.getDefaultMessage()
                 ));
 
-        return new ValidationErrorResponse(
+        ValidationErrorResponse response = new ValidationErrorResponse(
                 400,
                 "Validation failed",
                 errors
         );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(NoResourceFoundException exception) {
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            NoResourceFoundException exception
+    ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(
