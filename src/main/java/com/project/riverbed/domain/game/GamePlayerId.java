@@ -1,5 +1,5 @@
 
-package com.project.riverbed.domain.partida;
+package com.project.riverbed.domain.game;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -18,11 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class PartidaJogadorId implements Serializable {
+public class GamePlayerId implements Serializable {
 
-    @Column(name = "partida_id")
-    private UUID partidaId;
+    @Column(name = "game_id")
+    private UUID gameId;
 
-    @Column(name = "jogador_id")
-    private UUID jogadorId;
+    @Column(name = "player_id")
+    private UUID playerId;
 }

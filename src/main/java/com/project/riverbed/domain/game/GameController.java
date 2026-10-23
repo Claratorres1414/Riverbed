@@ -1,5 +1,5 @@
 
-package com.project.riverbed.domain.partida;
+package com.project.riverbed.domain.game;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +11,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/poker")
 @RequiredArgsConstructor
-public class PartidaController {
+public class GameController {
 
-    private final PartidaService partidaService;
+    private final GameService gameService;
 
-    @GetMapping("/partidasAbertas")
-    public List<PartidaDisponivelResponse> buscarPartidasDisponiveis() {
-        return partidaService.buscarPartidasDisponiveis();
+    @GetMapping("/open-games")
+    public List<AvailableGameResponse> findAvailableGames() {
+        return gameService.findAvailableGames();
     }
 }
