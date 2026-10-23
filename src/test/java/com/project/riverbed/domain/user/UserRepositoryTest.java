@@ -72,4 +72,56 @@ class UserRepositoryTest {
 
         assertTrue(foundUser.isEmpty());
     }
+
+    @Test
+    void shouldFindUserByEmail() {
+        User user = User.builder()
+                .name("Test User")
+                .email("test@example.com")
+                .password("hashedPassword")
+                .build();
+
+        userRepository.saveAndFlush(user);
+
+        Optional<User> foundUser = userRepository.findByEmail("test@example.com");
+
+        assertTrue(foundUser.isPresent());
+        assertEquals("Test User", foundUser.get().getName());
+        assertEquals("test@example.com", foundUser.get().getEmail());
+    }
+
+    @Test
+    void shouldCheckIfExistsByEmail() {
+        User user = User.builder()
+                .name("Another User")
+                .email("another@example.com")
+                .password("hashedPassword")
+                .build();
+
+        userRepository.saveAndFlush(user);
+
+        assertTrue(userRepository.existsByEmail("another@example.com"));
+        assertFalse(userRepository.existsByEmail("notfound@example.com"));
+    }
+
+    @Test
+    void shouldNotPersistUserWithDuplicateEmail() {
+        User firstUser = User.builder()
+                .email("same@example.com")
+                .name("First")
+                .password("hash")
+                .build();
+
+        User secondUser = User.builder()
+                .email("same@example.com")
+                .name("Second")
+                .password("hash")
+                .build();
+
+        userRepository.saveAndFlush(firstUser);
+
+        assertThrows(DataIntegrityViolationException.class, () ->
+                userRepository.saveAndFlush(secondUser)
+        );
+    }
 }
