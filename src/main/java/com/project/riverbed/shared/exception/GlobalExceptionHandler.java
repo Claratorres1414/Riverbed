@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ValidationErrorResponse handleValidationException(
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex
     ) {
         Map<String, String> errors = ex.getBindingResult()
@@ -26,14 +26,19 @@ public class GlobalExceptionHandler {
                 .stream()
                 .collect(Collectors.toMap(
                         error -> error.getField(),
-                        error -> error.getDefaultMessage()
+                        error -> error.getDefaultMessage(),
+                        (existing, replacement) -> existing
                 ));
 
-        return new ValidationErrorResponse(
+        ValidationErrorResponse response = new ValidationErrorResponse(
                 400,
                 "Validation failed",
                 errors
         );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
@@ -79,6 +84,30 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
                         "Tipo de mídia não suportado"
+                ));
+    }
+
+    @ExceptionHandler(com.project.riverbed.domain.player.exception.EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEmailAlreadyExists(
+            com.project.riverbed.domain.player.exception.EmailAlreadyExistsException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
+            org.springframework.dao.DataIntegrityViolationException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                        HttpStatus.CONFLICT.value(),
+                        "Conflito de dados: registro já existente no sistema"
                 ));
     }
 
