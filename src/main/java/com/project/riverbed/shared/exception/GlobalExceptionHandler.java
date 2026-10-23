@@ -1,3 +1,4 @@
+
 package com.project.riverbed.shared.exception;
 
 import com.project.riverbed.shared.response.ApiResponse;
@@ -42,7 +43,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(NoResourceFoundException exception) {
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            NoResourceFoundException exception
+    ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(
