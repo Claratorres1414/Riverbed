@@ -1,4 +1,3 @@
-
 package com.project.riverbed.domain.game;
 
 import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
@@ -9,6 +8,8 @@ import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
+import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
+import com.project.riverbed.domain.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final UserRepository userRepository;
 
     public List<AvailableGameResponse> findAvailableGames() {
         return gameRepository.findAvailableGames()
@@ -35,12 +37,17 @@ public class GameService {
 
     @Transactional
     public JoinGameResponse joinGame(UUID gameId, UUID playerId) {
-        return new JoinGameResponse(gameId, playerId);
+        
+        Game game = findGame(gameId);
+
+        validatePlayerExists(playerId);
+
+        return new JoinGameResponse(game.getId(), playerId);
     }
 
     @Transactional
-    public StartGameResponse startGame(UUID idPartida, StartGameRequest request) {
-        Game game = findGame(idPartida);
+    public StartGameResponse startGame(UUID gameId, StartGameRequest request) {
+        Game game = findGame(gameId);
 
         validateStartGameRequest(game, request);
 
@@ -51,6 +58,12 @@ public class GameService {
                 updatedGame.getId(),
                 updatedGame.getStatus()
         );
+    }
+
+    private void validatePlayerExists(UUID playerId) {
+        if (!userRepository.existsById(playerId)) {
+            throw new PlayerNotFoundException();
+        }
     }
 
     private void validateStartGameRequest(Game game, StartGameRequest request) {
@@ -67,12 +80,12 @@ public class GameService {
         }
     }
 
-    private Game findGame(UUID idPartida) {
-        return gameRepository.findById(idPartida)
+    private Game findGame(UUID gameId) {
+        return gameRepository.findById(gameId)
                 .orElseThrow(GameNotFoundException::new);
     }
 
-    private long countPlayers(UUID idPartida) {
-        return gameRepository.countPlayersByGameId(idPartida);
+    private long countPlayers(UUID gameId) {
+        return gameRepository.countPlayersByGameId(gameId);
     }
 }
