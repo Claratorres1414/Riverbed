@@ -1,6 +1,7 @@
 package com.project.riverbed.domain.game;
 
 import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
+import com.project.riverbed.domain.game.dtos.JoinGameRequest;
 import com.project.riverbed.domain.game.dtos.JoinGameResponse;
 import com.project.riverbed.domain.game.dtos.StartGameRequest;
 import com.project.riverbed.domain.game.dtos.StartGameResponse;
@@ -27,9 +28,9 @@ public class GameController {
     @PostMapping("/{gameId}/join")
     public ResponseEntity<ApiResponse<JoinGameResponse>> joinGame(
             @PathVariable UUID gameId,
-            @RequestParam UUID playerId
+            @RequestBody JoinGameRequest request
     ) {
-        JoinGameResponse response = gameService.joinGame(gameId, playerId);
+        JoinGameResponse response = gameService.joinGame(gameId, request.playerId());
 
         return ResponseEntity.ok(
                 ApiResponse.success(response, "Jogador adicionado à partida com sucesso!")
