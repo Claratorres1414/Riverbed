@@ -1,5 +1,5 @@
 
-package com.project.riverbed.domain.game;
+package com.project.riverbed.domain.game.dtos;
 
 import java.util.UUID;
 

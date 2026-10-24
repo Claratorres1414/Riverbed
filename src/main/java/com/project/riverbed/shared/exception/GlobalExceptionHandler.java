@@ -1,6 +1,7 @@
 
 package com.project.riverbed.shared.exception;
 
+import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.shared.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         HttpStatus.NOT_FOUND.value(),
                         "Recurso não encontrado"
+                ));
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGameNotFound(
+            GameNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage()
                 ));
     }
 
