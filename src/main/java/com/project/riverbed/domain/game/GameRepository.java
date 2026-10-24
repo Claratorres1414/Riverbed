@@ -3,6 +3,7 @@ package com.project.riverbed.domain.game;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,4 +24,11 @@ public interface GameRepository extends JpaRepository<Game, UUID> {
             ORDER BY g.created_at ASC
             """, nativeQuery = true)
     List<AvailableGameProjection> findAvailableGames();
+
+    @Query("""
+        SELECT COUNT(gp)
+        FROM GamePlayer gp
+        WHERE gp.game.id = :gameId
+        """)
+    long countPlayersByGameId(@Param("gameId") UUID gameId);
 }
