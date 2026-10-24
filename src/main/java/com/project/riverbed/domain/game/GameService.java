@@ -8,6 +8,7 @@ import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class GameService {
                 .toList();
     }
 
+    @Transactional
     public StartGameResponse startGame(UUID idPartida, StartGameRequest request) {
         Game game = findGame(idPartida);
 
