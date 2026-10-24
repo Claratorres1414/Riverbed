@@ -1,4 +1,4 @@
-package com.project.riverbed.domain.deck;
+package com.project.riverbed.domain.deck.entitys;
 
 import com.project.riverbed.domain.card.entitys.Card;
 import com.project.riverbed.domain.card.enums.Rank;
