@@ -25,6 +25,9 @@ public class CardDistributionService {
         Map<UUID, List<Card>> distribution = new HashMap<>();
 
         for (UUID playerId : playerIds) {
+            if (playerId == null) {
+                continue;
+            }
             distribution.put(playerId, deck.draw(CARDS_PER_PLAYER));
         }
 

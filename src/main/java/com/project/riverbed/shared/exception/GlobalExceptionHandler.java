@@ -1,6 +1,10 @@
 
 package com.project.riverbed.shared.exception;
 
+import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
+import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
+import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
 import com.project.riverbed.shared.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +46,18 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(InsufficientPlayersException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInsufficientPlayers(
+            InsufficientPlayersException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage()
+                ));
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(
             NoResourceFoundException exception
@@ -51,6 +67,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         HttpStatus.NOT_FOUND.value(),
                         "Recurso não encontrado"
+                ));
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGameNotFound(
+            GameNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage()
                 ));
     }
 
@@ -111,6 +139,30 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         HttpStatus.CONFLICT.value(),
                         "Conflito de dados: registro já existente no sistema"
+                ));
+    }
+
+    @ExceptionHandler(UnauthorizedGameStartException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedGameStart(
+            UnauthorizedGameStartException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(
+                        HttpStatus.FORBIDDEN.value(),
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(GameAlreadyStartedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGameAlreadyStarted(
+            GameAlreadyStartedException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage()
                 ));
     }
 
