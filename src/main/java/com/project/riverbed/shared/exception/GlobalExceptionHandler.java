@@ -1,11 +1,13 @@
-
 package com.project.riverbed.shared.exception;
 
 import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
+import com.project.riverbed.domain.player.exception.EmailAlreadyExistsException;
+import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
 import com.project.riverbed.shared.response.ApiResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -82,6 +84,18 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePlayerNotFound(
+            PlayerNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage()
+                ));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(
             HttpMessageNotReadableException exception
@@ -118,9 +132,9 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(com.project.riverbed.domain.player.exception.EmailAlreadyExistsException.class)
+    @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Void>> handleEmailAlreadyExists(
-            com.project.riverbed.domain.player.exception.EmailAlreadyExistsException exception
+            EmailAlreadyExistsException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -130,9 +144,9 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
-            org.springframework.dao.DataIntegrityViolationException exception
+            DataIntegrityViolationException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
