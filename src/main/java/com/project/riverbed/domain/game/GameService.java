@@ -2,6 +2,7 @@
 package com.project.riverbed.domain.game;
 
 import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
+import com.project.riverbed.domain.game.dtos.JoinGameResponse;
 import com.project.riverbed.domain.game.dtos.StartGameRequest;
 import com.project.riverbed.domain.game.dtos.StartGameResponse;
 import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
@@ -30,6 +31,11 @@ public class GameService {
                         game.getMaxPlayers()
                 ))
                 .toList();
+    }
+
+    @Transactional
+    public JoinGameResponse joinGame(UUID gameId, UUID playerId) {
+        return new JoinGameResponse(gameId, playerId);
     }
 
     @Transactional
