@@ -1,14 +1,12 @@
 package com.project.riverbed.domain.round.controllers;
 
+import com.project.riverbed.domain.round.dtos.PrivateCardsResponse;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.services.RoundService;
 import com.project.riverbed.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -30,6 +28,19 @@ public class RoundController {
                         response,
                         "Rodada iniciada com sucesso!"
                 )
+        );
+    }
+
+    @GetMapping("/{roundId}/players/{playerId}/cards")
+    public ResponseEntity<ApiResponse<PrivateCardsResponse>> getPrivateCards(
+            @PathVariable UUID gameId,
+            @PathVariable UUID roundId,
+            @PathVariable UUID playerId
+    ) {
+        PrivateCardsResponse response =
+                roundService.getPrivateCards(roundId, playerId);
+        return ResponseEntity.ok(
+                ApiResponse.success(response, "Cartas privadas consultadas com sucesso!")
         );
     }
 }
