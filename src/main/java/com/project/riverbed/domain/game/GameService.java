@@ -8,6 +8,7 @@ import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
+import com.project.riverbed.domain.game.repositorys.GameRepository;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
 import com.project.riverbed.domain.user.UserRepository;
 import jakarta.transaction.Transactional;

@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface RoundRepository extends JpaRepository<Round, UUID> {
     Optional<Round> findByGameIdAndStatus(UUID gameId, RoundStatus status);
+    boolean existsByGameIdAndStatus(UUID gameId, RoundStatus roundStatus);
 }
