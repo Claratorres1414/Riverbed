@@ -6,6 +6,7 @@ import com.project.riverbed.domain.game.dtos.StartGameRequest;
 import com.project.riverbed.domain.game.dtos.StartGameResponse;
 import com.project.riverbed.domain.game.exceptions.*;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
+import com.project.riverbed.domain.user.User;
 import com.project.riverbed.domain.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final GamePlayerRepository gamePlayerRepository;
 
     public List<AvailableGameResponse> findAvailableGames() {
         return gameRepository.findAvailableGames()
@@ -35,11 +37,22 @@ public class GameService {
     @Transactional
     public JoinGameResponse joinGame(UUID gameId, UUID playerId) {
         Game game = findGame(gameId);
+        User player = userRepository.findById(playerId)
+                .orElseThrow(PlayerNotFoundException::new);
 
-        validatePlayerExists(playerId);
         validateJoinGame(game, playerId);
 
-        return new JoinGameResponse(game.getId(), playerId);
+        GamePlayerId gamePlayerId = new GamePlayerId(game.getId(), player.getId());
+        
+        GamePlayer gamePlayer = GamePlayer.builder()
+                .id(gamePlayerId)
+                .game(game)
+                .player(player)
+                .build();
+
+        gamePlayerRepository.save(gamePlayer);
+
+        return new JoinGameResponse(game.getId(), player.getId());
     }
 
     private void validateJoinGame(Game game, UUID playerId) {
