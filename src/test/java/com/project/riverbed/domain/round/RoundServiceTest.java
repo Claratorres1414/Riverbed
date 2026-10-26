@@ -1,6 +1,8 @@
 package com.project.riverbed.domain.round;
 
 import com.project.riverbed.domain.card.entitys.Card;
+import com.project.riverbed.domain.card.enums.Rank;
+import com.project.riverbed.domain.card.enums.Suit;
 import com.project.riverbed.domain.deck.services.CardDistributionService;
 import com.project.riverbed.domain.game.Game;
 import com.project.riverbed.domain.game.repositorys.GamePlayerRepository;
@@ -8,8 +10,10 @@ import com.project.riverbed.domain.game.repositorys.GameRepository;
 import com.project.riverbed.domain.game.GameStatus;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.round.dtos.PrivateCardsResponse;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
+import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
 import com.project.riverbed.domain.round.enums.RoundStatus;
 import com.project.riverbed.domain.round.repositorys.RoundPlayerCardRepository;
 import com.project.riverbed.domain.round.repositorys.RoundRepository;
@@ -223,5 +227,126 @@ class RoundServiceTest {
         ));
 
         verify(roundRepository, times(2)).save(any(Round.class));
+    }
+
+    @Test
+    void shouldReturnPrivateCardsForPlayer() {
+        UUID roundId = UUID.randomUUID();
+        UUID playerId = UUID.randomUUID();
+
+        Card card1 = Card.builder()
+                .id(1L)
+                .suit(Suit.HEARTS)
+                .rank(Rank.ACE)
+                .build();
+
+        Card card2 = Card.builder()
+                .id(2L)
+                .suit(Suit.SPADES)
+                .rank(Rank.KING)
+                .build();
+
+        Round round = Round.builder()
+                .id(roundId)
+                .build();
+
+        User player = User.builder()
+                .id(playerId)
+                .build();
+
+        RoundPlayerCard playerCard1 = RoundPlayerCard.builder()
+                .round(round)
+                .player(player)
+                .card(card1)
+                .position((short) 1)
+                .build();
+
+        RoundPlayerCard playerCard2 = RoundPlayerCard.builder()
+                .round(round)
+                .player(player)
+                .card(card2)
+                .position((short) 2)
+                .build();
+
+        when(roundPlayerCardRepository
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId))
+                .thenReturn(List.of(playerCard1, playerCard2));
+
+        PrivateCardsResponse response =
+                roundService.getPrivateCards(roundId, playerId);
+
+        assertNotNull(response);
+        assertEquals(2, response.cards().size());
+
+        assertEquals(1L, response.cards().get(0).id());
+        assertEquals(Suit.HEARTS, response.cards().get(0).suit());
+        assertEquals(Rank.ACE, response.cards().get(0).rank());
+
+        assertEquals(2L, response.cards().get(1).id());
+        assertEquals(Suit.SPADES, response.cards().get(1).suit());
+        assertEquals(Rank.KING, response.cards().get(1).rank());
+
+        verify(roundPlayerCardRepository)
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenPlayerHasNoPrivateCards() {
+        UUID roundId = UUID.randomUUID();
+        UUID playerId = UUID.randomUUID();
+
+        when(roundPlayerCardRepository
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId))
+                .thenReturn(List.of());
+
+        PrivateCardsResponse response =
+                roundService.getPrivateCards(roundId, playerId);
+
+        assertNotNull(response);
+        assertTrue(response.cards().isEmpty());
+    }
+
+    @Test
+    void shouldReturnOnlyCardsBelongingToRequestedPlayer() {
+        UUID roundId = UUID.randomUUID();
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+
+        Round round = Round.builder()
+                .id(roundId)
+                .build();
+
+        User player1 = User.builder()
+                .id(player1Id)
+                .build();
+
+        Card card = Card.builder()
+                .id(1L)
+                .suit(Suit.HEARTS)
+                .rank(Rank.ACE)
+                .build();
+
+        RoundPlayerCard playerCard = RoundPlayerCard.builder()
+                .round(round)
+                .player(player1)
+                .card(card)
+                .position((short) 1)
+                .build();
+
+        when(roundPlayerCardRepository
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, player1Id))
+                .thenReturn(List.of(playerCard));
+
+        PrivateCardsResponse response =
+                roundService.getPrivateCards(roundId, player1Id);
+
+        assertEquals(1, response.cards().size());
+        assertEquals(1L, response.cards().get(0).id());
+
+        verify(roundPlayerCardRepository)
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, player1Id);
+
+        verify(roundPlayerCardRepository, never())
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, player2Id);
     }
 }
