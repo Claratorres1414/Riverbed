@@ -11,8 +11,11 @@ import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
 import com.project.riverbed.domain.round.enums.RoundStatus;
+import com.project.riverbed.domain.round.repositorys.RoundPlayerCardRepository;
 import com.project.riverbed.domain.round.repositorys.RoundRepository;
 import com.project.riverbed.domain.round.services.RoundService;
+import com.project.riverbed.domain.user.User;
+import com.project.riverbed.domain.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +33,12 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RoundServiceTest {
+
+    @Mock
+    private RoundPlayerCardRepository roundPlayerCardRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private RoundRepository roundRepository;
@@ -185,6 +194,20 @@ class RoundServiceTest {
 
                     return round;
                 });
+
+        User user1 = User.builder()
+                .id(player1)
+                .build();
+
+        User user2 = User.builder()
+                .id(player2)
+                .build();
+
+        when(userRepository.findById(player1))
+                .thenReturn(Optional.of(user1));
+
+        when(userRepository.findById(player2))
+                .thenReturn(Optional.of(user2));
 
         RoundStartResponse response = roundService.startRound(gameId);
 

@@ -10,12 +10,18 @@ import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
+import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
 import com.project.riverbed.domain.round.enums.RoundStatus;
+import com.project.riverbed.domain.round.repositorys.RoundPlayerCardRepository;
 import com.project.riverbed.domain.round.repositorys.RoundRepository;
+import com.project.riverbed.domain.user.User;
+import com.project.riverbed.domain.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +34,8 @@ public class RoundService {
     private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
     private final CardDistributionService cardDistributionService;
+    private final RoundPlayerCardRepository roundPlayerCardRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public RoundStartResponse startRound(UUID gameId) {
@@ -65,6 +73,8 @@ public class RoundService {
         Map<UUID, List<Card>> distribution =
                 cardDistributionService.distribute(playerIds);
 
+        persist(distribution, round);
+
         round.setCardsDistributed(true);
         roundRepository.save(round);
 
@@ -73,5 +83,29 @@ public class RoundService {
                 round.getStatus(),
                 distribution
         );
+    }
+
+    private void persist(Map<UUID, List<Card>> distribution, Round round) {
+        List<RoundPlayerCard> roundCards = new ArrayList<>();
+
+        for (Map.Entry<UUID, List<Card>> entry : distribution.entrySet()) {
+            UUID playerId = entry.getKey();
+            List<Card> cards = entry.getValue();
+
+            User player = userRepository.findById(playerId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+            for (Card card : cards) {
+                RoundPlayerCard roundPlayerCard = RoundPlayerCard.builder()
+                        .round(round)
+                        .player(player)
+                        .card(card)
+                        .build();
+
+                roundCards.add(roundPlayerCard);
+            }
+        }
+
+        roundPlayerCardRepository.saveAll(roundCards);
     }
 }
