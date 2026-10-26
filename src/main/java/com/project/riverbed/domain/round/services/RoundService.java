@@ -8,6 +8,7 @@ import com.project.riverbed.domain.game.repositorys.GameRepository;
 import com.project.riverbed.domain.game.GameStatus;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.round.dtos.PrivateCardsResponse;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
 import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
@@ -83,6 +84,24 @@ public class RoundService {
                 round.getStatus(),
                 distribution
         );
+    }
+
+    @Transactional
+    public PrivateCardsResponse getPrivateCards(UUID roundId, UUID playerId) {
+        List<RoundPlayerCard> playerCards =
+                roundPlayerCardRepository
+                        .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId);
+
+        List<PrivateCardsResponse.PrivateCardResponse> cards =
+                playerCards.stream()
+                        .map(roundPlayerCard ->
+                                PrivateCardsResponse.PrivateCardResponse.from(
+                                        roundPlayerCard.getCard()
+                                )
+                        )
+                        .toList();
+
+        return new PrivateCardsResponse(cards);
     }
 
     private void persist(Map<UUID, List<Card>> distribution, Round round) {
