@@ -1,4 +1,3 @@
-
 package com.project.riverbed.domain.game;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +30,11 @@ public interface GameRepository extends JpaRepository<Game, UUID> {
         WHERE gp.game.id = :gameId
         """)
     long countPlayersByGameId(@Param("gameId") UUID gameId);
+
+    @Query("""
+        SELECT COUNT(gp) > 0
+        FROM GamePlayer gp
+        WHERE gp.game.id = :gameId AND gp.player.id = :playerId
+        """)
+    boolean existsByGameIdAndPlayerId(@Param("gameId") UUID gameId, @Param("playerId") UUID playerId);
 }

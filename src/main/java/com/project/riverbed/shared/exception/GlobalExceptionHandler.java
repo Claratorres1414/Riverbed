@@ -1,8 +1,10 @@
 package com.project.riverbed.shared.exception;
 
 import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
+import com.project.riverbed.domain.game.exceptions.GameFullException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.game.exceptions.PlayerAlreadyInGameException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
 import com.project.riverbed.domain.player.exception.EmailAlreadyExistsException;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
@@ -189,6 +191,25 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         "Erro interno do servidor"
+                ));
+    }
+    @ExceptionHandler(GameFullException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGameFull(GameFullException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(PlayerAlreadyInGameException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePlayerAlreadyInGame(PlayerAlreadyInGameException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage()
                 ));
     }
 }
