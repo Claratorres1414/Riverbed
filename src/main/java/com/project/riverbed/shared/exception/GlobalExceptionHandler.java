@@ -6,6 +6,8 @@ import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
 import com.project.riverbed.domain.player.exception.EmailAlreadyExistsException;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
+import com.project.riverbed.domain.round.exceptions.PlayerNotInRoundException;
+import com.project.riverbed.domain.round.exceptions.RoundNotFoundException;
 import com.project.riverbed.shared.response.ApiResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -190,5 +192,23 @@ public class GlobalExceptionHandler {
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         "Erro interno do servidor"
                 ));
+    }
+
+    @ExceptionHandler(RoundNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRoundNotFound(
+            RoundNotFoundException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(
+                        404,
+                        exception.getMessage()));
+    }
+
+    @ExceptionHandler(PlayerNotInRoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePlayerNotInRound(
+            PlayerNotInRoundException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(403, exception.getMessage()));
     }
 }

@@ -15,6 +15,8 @@ import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
 import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
 import com.project.riverbed.domain.round.enums.RoundStatus;
+import com.project.riverbed.domain.round.exceptions.PlayerNotInRoundException;
+import com.project.riverbed.domain.round.exceptions.RoundNotFoundException;
 import com.project.riverbed.domain.round.repositorys.RoundPlayerCardRepository;
 import com.project.riverbed.domain.round.repositorys.RoundRepository;
 import com.project.riverbed.domain.round.services.RoundService;
@@ -232,6 +234,7 @@ class RoundServiceTest {
     @Test
     void shouldReturnPrivateCardsForPlayer() {
         UUID roundId = UUID.randomUUID();
+        UUID gameId = UUID.randomUUID();
         UUID playerId = UUID.randomUUID();
 
         Card card1 = Card.builder()
@@ -246,8 +249,13 @@ class RoundServiceTest {
                 .rank(Rank.KING)
                 .build();
 
+        Game game = Game.builder()
+                .id(gameId)
+                .build();
+
         Round round = Round.builder()
                 .id(roundId)
+                .game(game)
                 .build();
 
         User player = User.builder()
@@ -267,6 +275,12 @@ class RoundServiceTest {
                 .card(card2)
                 .position((short) 2)
                 .build();
+
+        when(roundRepository.findById(roundId))
+                .thenReturn(Optional.of(round));
+
+        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+                .thenReturn(true);
 
         when(roundPlayerCardRepository
                 .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId))
@@ -293,7 +307,23 @@ class RoundServiceTest {
     @Test
     void shouldReturnEmptyListWhenPlayerHasNoPrivateCards() {
         UUID roundId = UUID.randomUUID();
+        UUID gameId = UUID.randomUUID();
         UUID playerId = UUID.randomUUID();
+
+        Game game = Game.builder()
+                .id(gameId)
+                .build();
+
+        Round round = Round.builder()
+                .id(roundId)
+                .game(game)
+                .build();
+
+        when(roundRepository.findById(roundId))
+                .thenReturn(Optional.of(round));
+
+        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+                .thenReturn(true);
 
         when(roundPlayerCardRepository
                 .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId))
@@ -309,11 +339,17 @@ class RoundServiceTest {
     @Test
     void shouldReturnOnlyCardsBelongingToRequestedPlayer() {
         UUID roundId = UUID.randomUUID();
+        UUID gameId = UUID.randomUUID();
         UUID player1Id = UUID.randomUUID();
         UUID player2Id = UUID.randomUUID();
 
+        Game game = Game.builder()
+                .id(gameId)
+                .build();
+
         Round round = Round.builder()
                 .id(roundId)
+                .game(game)
                 .build();
 
         User player1 = User.builder()
@@ -333,6 +369,12 @@ class RoundServiceTest {
                 .position((short) 1)
                 .build();
 
+        when(roundRepository.findById(roundId))
+                .thenReturn(Optional.of(round));
+
+        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, player1Id))
+                .thenReturn(true);
+
         when(roundPlayerCardRepository
                 .findByRoundIdAndPlayerIdOrderByPosition(roundId, player1Id))
                 .thenReturn(List.of(playerCard));
@@ -340,6 +382,7 @@ class RoundServiceTest {
         PrivateCardsResponse response =
                 roundService.getPrivateCards(roundId, player1Id);
 
+        assertNotNull(response);
         assertEquals(1, response.cards().size());
         assertEquals(1L, response.cards().get(0).id());
 
@@ -348,5 +391,51 @@ class RoundServiceTest {
 
         verify(roundPlayerCardRepository, never())
                 .findByRoundIdAndPlayerIdOrderByPosition(roundId, player2Id);
+    }
+
+    @Test
+    void shouldThrowWhenRoundDoesNotExist() {
+        UUID roundId = UUID.randomUUID();
+        UUID playerId = UUID.randomUUID();
+
+        when(roundRepository.findById(roundId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                RoundNotFoundException.class,
+                () -> roundService.getPrivateCards(roundId, playerId)
+        );
+
+        verifyNoInteractions(gamePlayerRepository, roundPlayerCardRepository);
+    }
+
+    @Test
+    void shouldThrowWhenPlayerDoesNotParticipateInRound() {
+        UUID roundId = UUID.randomUUID();
+        UUID gameId = UUID.randomUUID();
+        UUID playerId = UUID.randomUUID();
+
+        Game game = Game.builder()
+                .id(gameId)
+                .build();
+
+        Round round = Round.builder()
+                .id(roundId)
+                .game(game)
+                .build();
+
+        when(roundRepository.findById(roundId))
+                .thenReturn(Optional.of(round));
+
+        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+                .thenReturn(false);
+
+        assertThrows(
+                PlayerNotInRoundException.class,
+                () -> roundService.getPrivateCards(roundId, playerId)
+        );
+
+        verify(roundPlayerCardRepository, never())
+                .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId);
     }
 }

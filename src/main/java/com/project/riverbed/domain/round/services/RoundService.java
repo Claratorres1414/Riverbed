@@ -13,6 +13,8 @@ import com.project.riverbed.domain.round.dtos.RoundStartResponse;
 import com.project.riverbed.domain.round.entitys.Round;
 import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
 import com.project.riverbed.domain.round.enums.RoundStatus;
+import com.project.riverbed.domain.round.exceptions.PlayerNotInRoundException;
+import com.project.riverbed.domain.round.exceptions.RoundNotFoundException;
 import com.project.riverbed.domain.round.repositorys.RoundPlayerCardRepository;
 import com.project.riverbed.domain.round.repositorys.RoundRepository;
 import com.project.riverbed.domain.user.User;
@@ -88,6 +90,16 @@ public class RoundService {
 
     @Transactional
     public PrivateCardsResponse getPrivateCards(UUID roundId, UUID playerId) {
+        Round round = roundRepository.findById(roundId)
+                .orElseThrow(() -> new RoundNotFoundException(roundId));
+
+        boolean playerParticipates = gamePlayerRepository
+                .existsByGameIdAndUserId(round.getGame().getId(), playerId);
+
+        if (!playerParticipates) {
+            throw new PlayerNotInRoundException(playerId, roundId);
+        }
+
         List<RoundPlayerCard> playerCards =
                 roundPlayerCardRepository
                         .findByRoundIdAndPlayerIdOrderByPosition(roundId, playerId);
