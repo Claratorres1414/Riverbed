@@ -1,8 +1,10 @@
 package com.project.riverbed.shared.exception;
 
 import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
+import com.project.riverbed.domain.game.exceptions.GameFullException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.game.exceptions.PlayerAlreadyInGameException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
 import com.project.riverbed.domain.player.exception.EmailAlreadyExistsException;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -191,4 +194,34 @@ public class GlobalExceptionHandler {
                         "Erro interno do servidor"
                 ));
     }
+    @ExceptionHandler(GameFullException.class)
+    public ResponseEntity<ApiResponse<Void>> handleGameFull(GameFullException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(PlayerAlreadyInGameException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePlayerAlreadyInGame(PlayerAlreadyInGameException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage()
+                ));
+    }
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(
+                MethodArgumentTypeMismatchException exception
+        ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Parâmetro inválido: " + exception.getName()
+                ));
+        }
 }
