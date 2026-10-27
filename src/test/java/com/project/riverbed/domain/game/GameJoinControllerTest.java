@@ -79,7 +79,7 @@ class GameJoinControllerTest {
 
     @Test
     @DisplayName("-> 400 quando a mesa está cheia")
-    void shouldReturnConflictWhenGameFull() throws Exception {
+    void shouldReturnBadRequestWhenGameFull() throws Exception {
         when(gameService.joinGame(gameId, playerId)).thenThrow(new GameFullException());
 
         join().andExpect(status().isBadRequest());
