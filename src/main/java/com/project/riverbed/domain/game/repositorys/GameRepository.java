@@ -34,3 +34,11 @@ public interface GameRepository extends JpaRepository<Game, UUID> {
         """)
     long countPlayersByGameId(@Param("gameId") UUID gameId);
 }
+
+    @Query("""
+        SELECT COUNT(gp) > 0
+        FROM GamePlayer gp
+        WHERE gp.game.id = :gameId AND gp.player.id = :playerId
+        """)
+    boolean existsByGameIdAndPlayerId(@Param("gameId") UUID gameId, @Param("playerId") UUID playerId);
+}

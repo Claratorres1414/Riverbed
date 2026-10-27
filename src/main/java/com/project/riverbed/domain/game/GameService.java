@@ -9,7 +9,9 @@ import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
 import com.project.riverbed.domain.game.repositorys.GameRepository;
+import com.project.riverbed.domain.game.exceptions.*;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
+import com.project.riverbed.domain.user.User;
 import com.project.riverbed.domain.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final GamePlayerRepository gamePlayerRepository;
 
     public List<AvailableGameResponse> findAvailableGames() {
         return gameRepository.findAvailableGames()
@@ -40,10 +43,36 @@ public class GameService {
     public JoinGameResponse joinGame(UUID gameId, UUID playerId) {
         
         Game game = findGame(gameId);
+        User player = userRepository.findById(playerId)
+                .orElseThrow(PlayerNotFoundException::new);
 
-        validatePlayerExists(playerId);
+        validateJoinGame(game, playerId);
 
-        return new JoinGameResponse(game.getId(), playerId);
+        GamePlayerId gamePlayerId = new GamePlayerId(game.getId(), player.getId());
+
+        GamePlayer gamePlayer = GamePlayer.builder()
+                .id(gamePlayerId)
+                .game(game)
+                .player(player)
+                .build();
+
+        gamePlayerRepository.save(gamePlayer);
+
+        return new JoinGameResponse(game.getId(), player.getId());
+    }
+
+    private void validateJoinGame(Game game, UUID playerId) {
+        if (game.getStatus() != GameStatus.AGUARDANDO_JOGADORES) {
+            throw new GameAlreadyStartedException();
+        }
+
+        if (countPlayers(game.getId()) >= game.getMaxPlayers()) {
+            throw new GameFullException();
+        }
+
+        if (gameRepository.existsByGameIdAndPlayerId(game.getId(), playerId)) {
+            throw new PlayerAlreadyInGameException();
+        }
     }
 
     @Transactional
