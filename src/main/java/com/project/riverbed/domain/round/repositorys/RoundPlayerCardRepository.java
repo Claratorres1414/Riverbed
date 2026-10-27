@@ -14,8 +14,4 @@ public interface RoundPlayerCardRepository
             UUID roundId,
             UUID playerId
     );
-
-    List<RoundPlayerCard> findByRoundIdOrderByPlayerIdAndPosition(
-            UUID roundId
-    );
 }

@@ -33,7 +33,6 @@ public interface GameRepository extends JpaRepository<Game, UUID> {
         WHERE gp.game.id = :gameId
         """)
     long countPlayersByGameId(@Param("gameId") UUID gameId);
-}
 
     @Query("""
         SELECT COUNT(gp) > 0

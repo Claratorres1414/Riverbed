@@ -279,7 +279,7 @@ class RoundServiceTest {
         when(roundRepository.findById(roundId))
                 .thenReturn(Optional.of(round));
 
-        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+        when(gamePlayerRepository.existsByGameIdAndPlayerId(gameId, playerId))
                 .thenReturn(true);
 
         when(roundPlayerCardRepository
@@ -322,7 +322,7 @@ class RoundServiceTest {
         when(roundRepository.findById(roundId))
                 .thenReturn(Optional.of(round));
 
-        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+        when(gamePlayerRepository.existsByGameIdAndPlayerId(gameId, playerId))
                 .thenReturn(true);
 
         when(roundPlayerCardRepository
@@ -372,7 +372,7 @@ class RoundServiceTest {
         when(roundRepository.findById(roundId))
                 .thenReturn(Optional.of(round));
 
-        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, player1Id))
+        when(gamePlayerRepository.existsByGameIdAndPlayerId(gameId, player1Id))
                 .thenReturn(true);
 
         when(roundPlayerCardRepository
@@ -427,7 +427,7 @@ class RoundServiceTest {
         when(roundRepository.findById(roundId))
                 .thenReturn(Optional.of(round));
 
-        when(gamePlayerRepository.existsByGameIdAndUserId(gameId, playerId))
+        when(gamePlayerRepository.existsByGameIdAndPlayerId(gameId, playerId))
                 .thenReturn(false);
 
         assertThrows(

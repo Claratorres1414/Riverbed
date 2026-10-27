@@ -94,7 +94,7 @@ public class RoundService {
                 .orElseThrow(() -> new RoundNotFoundException(roundId));
 
         boolean playerParticipates = gamePlayerRepository
-                .existsByGameIdAndUserId(round.getGame().getId(), playerId);
+                .existsByGameIdAndPlayerId(round.getGame().getId(), playerId);
 
         if (!playerParticipates) {
             throw new PlayerNotInRoundException(playerId, roundId);

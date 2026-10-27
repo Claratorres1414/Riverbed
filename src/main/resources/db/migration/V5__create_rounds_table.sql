@@ -1,5 +1,5 @@
 CREATE TABLE rounds (
-    id UUID PRIMARY KEY DEFAULT,
+    id UUID PRIMARY KEY,
 
     game_id UUID NOT NULL,
 

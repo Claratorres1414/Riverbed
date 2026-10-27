@@ -18,5 +18,5 @@ public interface GamePlayerRepository extends JpaRepository<GamePlayer, GamePlay
         """)
     List<UUID> findPlayerIdsByGameId(@Param("gameId") UUID gameId);
 
-    boolean existsByGameIdAndUserId(UUID id, UUID playerId);
+    boolean existsByGameIdAndPlayerId(UUID id, UUID playerId);
 }

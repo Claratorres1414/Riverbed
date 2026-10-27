@@ -5,6 +5,8 @@ import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameFullException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.PlayerAlreadyInGameException;
+import com.project.riverbed.domain.game.repositorys.GamePlayerRepository;
+import com.project.riverbed.domain.game.repositorys.GameRepository;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
 import com.project.riverbed.domain.user.User;
 import com.project.riverbed.domain.user.UserRepository;
