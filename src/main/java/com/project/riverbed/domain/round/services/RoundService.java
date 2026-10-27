@@ -126,11 +126,12 @@ public class RoundService {
             User player = userRepository.findById(playerId)
                     .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-            for (Card card : cards) {
+            for (int i = 0; i < cards.size(); i++) {
                 RoundPlayerCard roundPlayerCard = RoundPlayerCard.builder()
                         .round(round)
                         .player(player)
-                        .card(card)
+                        .card(cards.get(i))
+                        .position((short) (i + 1))
                         .build();
 
                 roundCards.add(roundPlayerCard);
