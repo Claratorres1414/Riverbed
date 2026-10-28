@@ -4,6 +4,12 @@ import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
 import com.project.riverbed.domain.game.dtos.JoinGameResponse;
 import com.project.riverbed.domain.game.dtos.StartGameRequest;
 import com.project.riverbed.domain.game.dtos.StartGameResponse;
+import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
+import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
+import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
+import com.project.riverbed.domain.game.exceptions.UnauthorizedGameStartException;
+import com.project.riverbed.domain.game.repositorys.GamePlayerRepository;
+import com.project.riverbed.domain.game.repositorys.GameRepository;
 import com.project.riverbed.domain.game.exceptions.*;
 import com.project.riverbed.domain.player.exception.PlayerNotFoundException;
 import com.project.riverbed.domain.user.User;
@@ -36,6 +42,7 @@ public class GameService {
 
     @Transactional
     public JoinGameResponse joinGame(UUID gameId, UUID playerId) {
+        
         Game game = findGame(gameId);
         User player = userRepository.findById(playerId)
                 .orElseThrow(PlayerNotFoundException::new);
@@ -43,7 +50,7 @@ public class GameService {
         validateJoinGame(game, playerId);
 
         GamePlayerId gamePlayerId = new GamePlayerId(game.getId(), player.getId());
-        
+
         GamePlayer gamePlayer = GamePlayer.builder()
                 .id(gamePlayerId)
                 .game(game)

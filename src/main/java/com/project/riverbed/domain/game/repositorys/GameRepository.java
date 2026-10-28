@@ -1,5 +1,8 @@
-package com.project.riverbed.domain.game;
 
+package com.project.riverbed.domain.game.repositorys;
+
+import com.project.riverbed.domain.game.AvailableGameProjection;
+import com.project.riverbed.domain.game.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
