@@ -14,7 +14,7 @@ public interface GamePlayerRepository extends JpaRepository<GamePlayer, GamePlay
     @Query("""
         SELECT gp.player.id
         FROM GamePlayer gp
-        WHERE gp.game.id = : gameId
+        WHERE gp.game.id = :gameId
         """)
     List<UUID> findPlayerIdsByGameId(@Param("gameId") UUID gameId);
 

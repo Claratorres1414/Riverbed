@@ -1,10 +1,6 @@
 package com.project.riverbed.domain.game;
 
-import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
-import com.project.riverbed.domain.game.dtos.JoinGameRequest;
-import com.project.riverbed.domain.game.dtos.JoinGameResponse;
-import com.project.riverbed.domain.game.dtos.StartGameRequest;
-import com.project.riverbed.domain.game.dtos.StartGameResponse;
+import com.project.riverbed.domain.game.dtos.*;
 import com.project.riverbed.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +15,13 @@ import java.util.UUID;
 public class GameController {
 
     private final GameService gameService;
+
+    @PostMapping("/create-game")
+    public ResponseEntity<ApiResponse<JoinGameResponse>> createGame(@RequestBody CreateGameRequest createGameRequest) {
+        return ResponseEntity.ok(
+                ApiResponse.success(gameService.createGame(createGameRequest), "Mesa criada com sucesso")
+        );
+    }
 
     @GetMapping("/open-games")
     public List<AvailableGameResponse> findAvailableGames() {

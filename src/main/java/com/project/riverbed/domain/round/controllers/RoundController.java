@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/poker/{gameId}/rounds")
+@RequestMapping("/poker/rounds")
 @RequiredArgsConstructor
 public class RoundController {
 
     private final RoundService roundService;
 
-    @PostMapping("/start")
+    @PostMapping("/{gameId}/start")
     public ResponseEntity<ApiResponse<RoundStartResponse>> startRound(
             @PathVariable UUID gameId
     ) {
@@ -33,7 +33,6 @@ public class RoundController {
 
     @GetMapping("/{roundId}/players/{playerId}/cards")
     public ResponseEntity<ApiResponse<PrivateCardsResponse>> getPrivateCards(
-            @PathVariable UUID gameId,
             @PathVariable UUID roundId,
             @PathVariable UUID playerId
     ) {

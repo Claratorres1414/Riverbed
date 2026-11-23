@@ -1,9 +1,6 @@
 package com.project.riverbed.domain.game;
 
-import com.project.riverbed.domain.game.dtos.AvailableGameResponse;
-import com.project.riverbed.domain.game.dtos.JoinGameResponse;
-import com.project.riverbed.domain.game.dtos.StartGameRequest;
-import com.project.riverbed.domain.game.dtos.StartGameResponse;
+import com.project.riverbed.domain.game.dtos.*;
 import com.project.riverbed.domain.game.exceptions.GameAlreadyStartedException;
 import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
@@ -28,6 +25,31 @@ public class GameService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
     private final GamePlayerRepository gamePlayerRepository;
+
+    public JoinGameResponse createGame(CreateGameRequest request) {
+        User owner = userRepository.findById(request.ownerId())
+                .orElseThrow(PlayerNotFoundException::new);
+
+        Game game = Game.builder()
+                .creator(owner)
+                .maxPlayers(request.maxPlayers())
+                .status(GameStatus.AGUARDANDO_JOGADORES)
+                .build();
+
+        gameRepository.save(game);
+
+        GamePlayerId gamePlayerId = new GamePlayerId(game.getId(), owner.getId());
+
+        GamePlayer gamePlayer = GamePlayer.builder()
+                .id(gamePlayerId)
+                .game(game)
+                .player(owner)
+                .build();
+
+        gamePlayerRepository.save(gamePlayer);
+
+        return new JoinGameResponse(game.getId(), owner.getId());
+    }
 
     public List<AvailableGameResponse> findAvailableGames() {
         return gameRepository.findAvailableGames()
