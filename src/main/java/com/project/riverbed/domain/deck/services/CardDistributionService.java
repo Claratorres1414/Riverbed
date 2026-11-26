@@ -6,21 +6,20 @@ import com.project.riverbed.domain.deck.entitys.Deck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class CardDistributionService {
 
     private static final int CARDS_PER_PLAYER = 2;
+    private static final int CARDS_PER_TABLE = 5;
 
     private final CardRepository cardRepository;
+    private Deck deck;
 
     public Map<UUID, List<Card>> distribute(List<UUID> playerIds) {
-        Deck deck = new Deck(cardRepository.findAll());
+        deck = new Deck(cardRepository.findAll());
 
         Map<UUID, List<Card>> distribution = new HashMap<>();
 
@@ -32,5 +31,9 @@ public class CardDistributionService {
         }
 
         return Map.copyOf(distribution);
+    }
+
+    public List<Card> tempDistributeAllCommunityCards() {
+        return new ArrayList<>(deck.draw(CARDS_PER_TABLE));
     }
 }

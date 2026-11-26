@@ -10,6 +10,7 @@ import com.project.riverbed.domain.game.exceptions.GameNotFoundException;
 import com.project.riverbed.domain.game.exceptions.InsufficientPlayersException;
 import com.project.riverbed.domain.round.dtos.PrivateCardsResponse;
 import com.project.riverbed.domain.round.dtos.RoundStartResponse;
+import com.project.riverbed.domain.round.dtos.TableCardsResponse;
 import com.project.riverbed.domain.round.entitys.Round;
 import com.project.riverbed.domain.round.entitys.RoundPlayerCard;
 import com.project.riverbed.domain.round.enums.RoundStatus;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,8 @@ public class RoundService {
     private final CardDistributionService cardDistributionService;
     private final RoundPlayerCardRepository roundPlayerCardRepository;
     private final UserRepository userRepository;
+
+    private final Map<UUID, List<Card>> tempTableCards = new ConcurrentHashMap<>();
 
     @Transactional
     public RoundStartResponse startRound(UUID gameId) {
@@ -88,6 +92,33 @@ public class RoundService {
         );
     }
 
+    public TableCardsResponse tempDistributeTableCards(UUID roundId) {
+        roundRepository.findById(roundId)
+                .orElseThrow(() -> new RoundNotFoundException(roundId));
+
+        List<Card> cards = cardDistributionService
+                .tempDistributeAllCommunityCards();
+
+        tempTableCards.put(roundId, cards);
+
+        return TableCardsResponse.from(cards);
+    }
+
+    public TableCardsResponse getAllTableCards(UUID roundId) {
+        roundRepository.findById(roundId)
+                .orElseThrow(() -> new RoundNotFoundException(roundId));
+
+        List<Card> cards = tempTableCards.get(roundId);
+
+        if (cards == null) {
+            throw new IllegalStateException(
+                    "As cartas comunitárias ainda não foram distribuídas para esta rodada."
+            );
+        }
+
+        return TableCardsResponse.from(cards);
+    }
+
     @Transactional
     public PrivateCardsResponse getPrivateCards(UUID roundId, UUID playerId) {
         Round round = roundRepository.findById(roundId)
@@ -114,6 +145,21 @@ public class RoundService {
                         .toList();
 
         return new PrivateCardsResponse(cards);
+    }
+
+    @Transactional
+    public void endRound(UUID roundId) {
+        Round round = roundRepository.findById(roundId)
+                .orElseThrow(() -> new RoundNotFoundException(roundId));
+
+        if (round.getStatus() != RoundStatus.EM_ANDAMENTO) {
+            throw new IllegalStateException(
+                    "Não é possível encerrar uma rodada que não está em andamento."
+            );
+        }
+
+        round.setStatus(RoundStatus.ENCERRADA);
+        roundRepository.save(round);
     }
 
     private void persist(Map<UUID, List<Card>> distribution, Round round) {
