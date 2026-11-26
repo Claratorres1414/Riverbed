@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class OnePairStrategy implements HandEvaluationStrategy{
+public class OnePairStrategy implements HandEvaluationStrategy {
 
     @Override
     public HandRank getRank() {
@@ -27,14 +27,21 @@ public class OnePairStrategy implements HandEvaluationStrategy{
         Map<Rank, List<Card>> groupedCards = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank));
 
+        long pairCount = groupedCards.values().stream()
+                .filter(group -> group.size() == 2)
+                .count();
+
+        boolean hasInvalidGroup = groupedCards.values().stream()
+                .anyMatch(group -> group.size() != 1 && group.size() != 2);
+
+        if (pairCount != 1 || hasInvalidGroup) {
+            return Optional.empty();
+        }
+
         List<Card> pair = groupedCards.values().stream()
                 .filter(group -> group.size() == 2)
                 .findFirst()
-                .orElse(null);
-
-        if (pair == null) {
-            return Optional.empty();
-        }
+                .orElseThrow();
 
         Rank pairRank = pair.getFirst().getRank();
 

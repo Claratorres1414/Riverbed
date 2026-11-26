@@ -42,6 +42,12 @@ public class ThreeOfAKindStrategy implements HandEvaluationStrategy {
             return Optional.empty();
         }
 
+        if (groupedCards.values().stream()
+                .filter(group -> group.size() >= 2)
+                .count() > 1) {
+            return Optional.empty();
+        }
+
         Rank threeRank = threeOfAKind.getFirst().getRank();
 
         List<Card> kickers = groupedCards.values().stream()
